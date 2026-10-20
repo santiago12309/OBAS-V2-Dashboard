@@ -272,32 +272,232 @@ with tab_geo:
             "No se debe presentar como validación independiente definitiva."
         )
 
-# 4. GRAD-CAM
+
+# 4. GRAD-CAM Y EVIDENCIAS DE VALIDACIÓN
 with tab_gradcam:
-    st.header("Interpretabilidad: Grad-CAM")
+    st.header("Interpretabilidad y validación de OBAS V2")
     st.write(
-        "Visualización exploratoria de activaciones del modelo para un parche "
-        "específico. No demuestra causalidad ni garantiza que el modelo use "
-        "exclusivamente características relacionadas con áreas quemadas."
+        "Panel de evidencias experimentales del modelo: activaciones, "
+        "máscaras predichas, comparación geoespacial y resultados regionales."
     )
 
-    imagen_gradcam = BASE / "PASO20_3_gradcam_patch1527.png"
-    if imagen_gradcam.exists():
-        st.image(
-            str(imagen_gradcam),
-            caption="Grad-CAM del parche 1527",
-            use_container_width=True
+    st.info(
+        "Las predicciones de clase 1 no confirman por sí solas áreas quemadas. "
+        "Las hectáreas y la biomasa solo deben interpretarse según sus datos, "
+        "método de cálculo, resolución y unidades."
+    )
+
+    # --------------------------------------------------
+    # 1. GRAD-CAM ORIGINAL
+    # --------------------------------------------------
+    with st.expander("1. Interpretabilidad: Grad-CAM", expanded=True):
+        imagen_gradcam = BASE / "PASO20_3_gradcam_patch1527.png"
+
+        if imagen_gradcam.exists():
+            st.image(
+                str(imagen_gradcam),
+                caption="Grad-CAM del parche 1527",
+                use_container_width=True
+            )
+        else:
+            st.warning("No se encontró PASO20_3_gradcam_patch1527.png.")
+
+        st.subheader("Métricas de activación")
+        mostrar_tabla("PASO20_4_gradcam_metricas_patch1527.csv")
+
+        archivo_capas = BASE / "PASO20_2_capas_modelo.csv"
+        if archivo_capas.exists():
+            with st.expander("Inspeccionar capas del modelo"):
+                mostrar_tabla("PASO20_2_capas_modelo.csv")
+
+    # --------------------------------------------------
+    # 2. VALIDACIÓN VISUAL
+    # --------------------------------------------------
+    with st.expander("2. Evidencias visuales: máscaras y referencias", expanded=True):
+        st.write(
+            "Aquí se muestran las figuras de inspección visual que estén "
+            "guardadas junto al código de la aplicación."
         )
-    else:
-        st.warning("No se encontró la visualización Grad-CAM guardada.")
 
-    st.subheader("Métricas de activación")
-    mostrar_tabla("PASO20_4_gradcam_metricas_patch1527.csv")
+        # Nombres conocidos y búsqueda de figuras regionales relacionadas.
+        imagenes_conocidas = [
+            BASE / "PASO14_validacion_visual_tolima.png",
+            BASE / "PASO22_validacion_visual_tolima.png",
+            BASE / "PASO22_4_consistencia_prediccion_dNBR.png",
+            BASE / "PASO22_5_comparacion_MODIS_exploratoria.png",
+        ]
 
-    archivo_capas = BASE / "PASO20_2_capas_modelo.csv"
-    if archivo_capas.exists():
-        with st.expander("Inspeccionar capas del modelo"):
-            mostrar_tabla("PASO20_2_capas_modelo.csv")
+        encontradas = []
+        for ruta in imagenes_conocidas:
+            if ruta.exists() and ruta.suffix.lower() in [".png", ".jpg", ".jpeg"]:
+                if ruta not in encontradas:
+                    encontradas.append(ruta)
+
+        # Busca otros PNG/JPG con nombres que indiquen validación regional.
+        patrones = [
+            "*validacion*visual*.png",
+            "*validación*visual*.png",
+            "*tolima*.png",
+            "*regional*.png",
+            "*dNBR*.png",
+            "*MODIS*.png",
+            "*modis*.png",
+        ]
+
+        for patron in patrones:
+            for ruta in BASE.glob(patron):
+                if ruta not in encontradas:
+                    encontradas.append(ruta)
+
+        if encontradas:
+            for ruta in encontradas:
+                st.image(
+                    str(ruta),
+                    caption=ruta.name,
+                    use_container_width=True
+                )
+        else:
+            st.warning(
+                "No se encontraron imágenes regionales adicionales en la "
+                "carpeta de la aplicación. Si las figuras solo están en Kaggle, "
+                "hay que descargarlas y añadirlas al repositorio."
+            )
+
+        st.subheader("Consistencia con dNBR")
+        mostrar_tabla("PASO22_4_consistencia_prediccion_dNBR.csv")
+
+        st.subheader("Comparación exploratoria con MODIS")
+        df_modis_gradcam = mostrar_tabla(
+            "PASO22_5_comparacion_MODIS_exploratoria.csv"
+        )
+        if df_modis_gradcam is not None:
+            st.caption(
+                "Comparación exploratoria: las diferencias de resolución, "
+                "alineación y cobertura limitan la interpretación."
+            )
+
+    # --------------------------------------------------
+    # 3. PRUEBAS REGIONALES Y COMPARACIÓN DE MODELOS
+    # --------------------------------------------------
+    with st.expander("3. Pruebas regionales y evaluación de modelos"):
+        st.subheader("Inferencia comparativa")
+        mostrar_tabla("PASO23_3_inferencia_comparativa.csv")
+
+        st.subheader("Validación de modelos")
+        mostrar_tabla("PASO21_2_validacion_modelos.csv")
+
+        st.subheader("Evaluación en test")
+        mostrar_tabla("PASO21_2_test_modelos.csv")
+
+        st.subheader("Decisión del modelo móvil")
+        mostrar_tabla("PASO23_4_2_decision_final_modelo_movil.csv")
+
+        st.caption(
+            "Las métricas corresponden a los experimentos guardados. "
+            "No deben interpretarse como resultados de nuevas inferencias."
+        )
+
+    # --------------------------------------------------
+    # 4. SUPERFICIE ESTIMADA
+    # --------------------------------------------------
+    with st.expander("4. Superficie geográfica y hectáreas"):
+        df_superficie_gradcam = mostrar_tabla(
+            "PASO22_3_superficie_geografica_tolima.csv"
+        )
+
+        if (
+            df_superficie_gradcam is not None
+            and "clase" in df_superficie_gradcam.columns
+            and "superficie_ha" in df_superficie_gradcam.columns
+        ):
+            datos_area = df_superficie_gradcam.copy()
+            datos_area["superficie_ha"] = pd.to_numeric(
+                datos_area["superficie_ha"], errors="coerce"
+            )
+            datos_area = datos_area.dropna(subset=["superficie_ha"])
+
+            if not datos_area.empty:
+                st.bar_chart(
+                    datos_area.set_index("clase")[["superficie_ha"]],
+                    height=280
+                )
+
+                clase1 = datos_area[
+                    datos_area["clase"].astype(str).str.strip() == "1"
+                ]
+                if not clase1.empty:
+                    area = float(clase1.iloc[0]["superficie_ha"])
+                    st.metric(
+                        "Superficie clasificada como clase 1",
+                        f"{area:,.2f} ha"
+                    )
+
+        st.caption(
+            "La superficie es una estimación derivada de la máscara y del "
+            "procedimiento geográfico utilizado; no equivale automáticamente "
+            "a superficie quemada confirmada."
+        )
+
+    # --------------------------------------------------
+    # 5. BIOMASA: MOSTRAR SOLO RESULTADOS EXISTENTES
+    # --------------------------------------------------
+    with st.expander("5. Biomasa y variables ambientales"):
+        archivos_biomasa = []
+        patrones_biomasa = [
+            "*biomasa*.csv",
+            "*biomass*.csv",
+            "*carbono*.csv",
+            "*carbon*.csv",
+            "*biomasa*.png",
+            "*biomass*.png",
+        ]
+
+        for patron in patrones_biomasa:
+            for ruta in BASE.glob(patron):
+                if ruta not in archivos_biomasa:
+                    archivos_biomasa.append(ruta)
+
+        if archivos_biomasa:
+            for ruta in archivos_biomasa:
+                st.markdown(f"**Archivo:** `{ruta.name}`")
+
+                if ruta.suffix.lower() == ".csv":
+                    mostrar_tabla(ruta.name)
+                elif ruta.suffix.lower() == ".png":
+                    st.image(
+                        str(ruta),
+                        caption=ruta.name,
+                        use_container_width=True
+                    )
+
+            st.caption(
+                "Antes de presentar una cifra de biomasa se debe verificar "
+                "su método, unidades, cobertura y fuente."
+            )
+        else:
+            st.warning(
+                "No se encontraron archivos con nombres de biomasa o carbono "
+                "en la carpeta de la aplicación. No se muestra una cifra "
+                "inventada. Si los resultados están en Kaggle, hay que "
+                "incorporar los archivos correspondientes."
+            )
+
+    # --------------------------------------------------
+    # 6. TRAZABILIDAD
+    # --------------------------------------------------
+    with st.expander("6. Archivos y métricas de soporte"):
+        for nombre in [
+            "PASO21_2_tflite_comparacion.csv",
+            "PASO22_3_superficie_geografica_tolima.csv",
+            "PASO22_4_consistencia_prediccion_dNBR.csv",
+            "PASO22_5_comparacion_MODIS_exploratoria.csv",
+            "PASO23_3_inferencia_comparativa.csv",
+            "PASO23_4_2_matriz_decision_modelo_movil.csv",
+            "PASO25_1_ficha_modelo_inferencia.csv",
+            "PASO25_2_6_metricas.csv",
+        ]:
+            with st.expander(nombre):
+                mostrar_tabla(nombre)
 
 # 5. PUNTOS CALIENTES
 with tab_focos:
