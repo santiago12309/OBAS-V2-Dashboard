@@ -1,0 +1,2 @@
+pixeles_MODIS_totales,pixeles_MODIS_validos,pixeles_comparables,clase_0_referencia,clase_1_referencia,TN,FP,FN,TP,accuracy_exploratoria,precision_clase_1,recall_clase_1,dice_clase_1,IoU_clase_1,advertencia
+35,35,27,0,27,0,0,5,22,0.8148148148148148,1.0,0.8148148148148148,0.8979591836734694,0.8148148148148148,Comparación exploratoria entre resoluciones distintas; no equivale a validación independiente.

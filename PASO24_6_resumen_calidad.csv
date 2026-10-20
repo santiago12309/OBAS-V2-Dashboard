@@ -1,0 +1,9 @@
+indicador,valor
+registros_fuente,4711
+registros_validos,4711
+registros_excluidos_por_validacion,0
+fechas_invalidas,0
+coordenadas_fuera_rango,0
+radiacion_termica_nula,128
+fuentes_satelitales_distintas,5
+detecciones_duplicadas_fecha_coordenadas_fuente,0

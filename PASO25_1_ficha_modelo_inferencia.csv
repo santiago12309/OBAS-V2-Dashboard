@@ -1,0 +1,8 @@
+elemento,valor
+modelo,obas_v2_student_float16.tflite
+formato,TensorFlow Lite Float16
+entrada,"(1, 128, 128, 3)"
+tipo_entrada,<class 'numpy.float32'>
+salida,"(1, 128, 128, 1)"
+tipo_salida,<class 'numpy.float32'>
+tamaño_MB,15.311

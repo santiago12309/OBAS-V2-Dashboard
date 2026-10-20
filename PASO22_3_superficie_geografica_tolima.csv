@@ -1,0 +1,4 @@
+clase_predicha,pixeles,porcentaje_pixeles_validos,superficie_geodesica_ha,interpretacion
+0,3495,20.711111111111112,138.60535332463039,Clase predicha por el modelo; no equivale por sí sola a área quemada confirmada.
+1,13380,79.28888888888889,530.6279237850373,Clase predicha por el modelo; no equivale por sí sola a área quemada confirmada.
+TOTAL_VALIDO,16875,100.0,669.2332771096677,Superficie válida cubierta por el ráster.

@@ -1,0 +1,11 @@
+nombre,tipo,salida
+decoder1_conv1,Conv2D,"(None, 8, 8, 256)"
+decoder1_conv2,Conv2D,"(None, 8, 8, 256)"
+decoder2_conv1,Conv2D,"(None, 16, 16, 128)"
+decoder2_conv2,Conv2D,"(None, 16, 16, 128)"
+decoder3_conv1,Conv2D,"(None, 32, 32, 64)"
+decoder3_conv2,Conv2D,"(None, 32, 32, 64)"
+decoder4_conv1,Conv2D,"(None, 64, 64, 32)"
+decoder4_conv2,Conv2D,"(None, 64, 64, 32)"
+decoder_final_conv,Conv2D,"(None, 128, 128, 16)"
+burned_area_probability,Conv2D,"(None, 128, 128, 1)"

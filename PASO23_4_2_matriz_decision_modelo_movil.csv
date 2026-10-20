@@ -1,0 +1,6 @@
+criterio,Float32,Float16,diferencia,interpretacion
+Tamaño del modelo,30.54 MB,15.31 MB,Reducción del 49.87 %,Ventaja de Float16 para almacenamiento móvil
+Dice / F1 global,0.799091,0.795683,-0.341 puntos porcentuales,Pérdida pequeña de Dice en la prueba registrada
+IoU global,0.665406,0.660692,-0.471 puntos porcentuales,Ligera reducción de IoU con Float16
+Recall global,0.740695,0.735073,-0.562 puntos porcentuales,Float16 detecta una fracción ligeramente menor de positivos
+Latencia media global registrada,16.530 ms,16.303 ms,-0.227 ms,Tiempos similares en el entorno de prueba
